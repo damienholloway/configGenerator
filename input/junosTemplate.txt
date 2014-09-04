@@ -1,0 +1,160 @@
+## JUNOS BASE CONFIG
+## 0.1 - Initial Draft
+
+/* BASE V0.1 14/1/2014 */
+groups {
+    re0 {
+        system {
+            host-name <#HOSTNAME#>;
+            /* Path to operations via OOB */
+            backup-router <#OOB_GW#> destination 10.1.0.0/24;
+        }
+        routing-options {
+            static {
+                /* Only NOC is reachable over OOB */
+                route 10.1.0.0/24 {
+                    next-hop <#OOB_GW#>;
+                    retain;
+                    no-readvertise;
+                }
+            }
+        }
+    }
+   
+    /* Configuration group to apply filter "protect-router" to all loopbacks */
+    PROTECT_RE_GROUP {
+        interfaces {
+            lo0 {
+                #Wild card applies to all loopback units
+                unit <*> {
+                    family inet {
+                        filter {
+                            input PROTECT_RE_FILTER;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+system {
+    no-multicast-echo;
+    default-address-selection;
+    no-redirects;
+    internet-options {
+        tcp-drop-synfin-set;
+    }
+    location {
+        country-code "<# SNMP_COUNTRY_CODE #>";
+        building "<# SNMP_BUILDING #>";
+        floor "<# SNMP_FLOOR #>";
+        rack "<# SNMP_RACK #>";
+    }
+    ports {
+        console {
+            log-out-on-disconnect;
+            type vt100;
+        }
+        auxiliary type vt100;
+    }
+ 
+    radius-server {
+        10.1.1.1 {
+            secret "<# encrypted-string #>"; ## SECRET-DATA
+        }
+            }
+  
+    services {
+        ssh {
+            root-login deny;
+            protocol-version v2;
+        }
+    }
+syslog {
+        archive size 1m files 10;
+        user * {
+            any emergency;
+        }
+    }
+
+    archival {
+        configuration {
+            transfer-on-commit;
+            archive-sites {
+                "scp://<#archive_username#>@<# ARCHIVE_IP #>/<#DIR#>/" password "<#PASSWORD#>"; 
+            }
+        }
+    }
+    commit synchronize;
+}
+routing-options {
+        static {
+            /* there needs to be a route for every "upstream" destination */
+            route <#Route#> {
+                next-hop <#NEXT_HOP_GW#>;
+            }
+    }
+}
+interfaces {
+    lo0 {
+        apply-groups PROTECT_RE_GROUP;
+        unit 0 {
+            description "<# HOSTNAME #> loopback";
+            family inet {
+                address <#LOOPBACK_IP#>/32 {
+                }
+            }
+        }
+    }
+}
+snmp {
+    location <#LOCATION#>;
+    community <#COMMUNITY#> {
+        authorization read-only;
+    }
+    
+    firewall {
+        policer icmp_policer {
+            if-exceeding {
+                bandwidth-limit 2m;
+                burst-size-limit 15k;
+            }
+            then discard;
+        }
+        family {
+            inet {
+                filter PROTECT_RE_FILTER {
+                    term PERMIT_SSH {
+                        from {
+                            source-prefix-list {
+                                OSS_PREFIX;
+                                INFRASTRUCTURE_PREFIX;
+                            }
+                            protocol tcp;
+                            destination-port ssh;
+                        }
+                        then {
+                            count ssh;
+                            accept;
+                        }
+                    }
+                    term PERMIT_DNS {
+                        from {
+                            source-prefix-list {
+                                OSS_PREFIX;
+                            }
+                            protocol udp;
+                            port domain;
+                        }
+                        then {
+                            count dns;
+                            accept;
+                        }
+                    }
+ 
+                }
+            }
+        }
+    }
+}
+
