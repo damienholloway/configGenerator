@@ -1,0 +1,18 @@
+
+en
+
+conf t
+
+hostname "<#hostname#>"
+
+interface fas 0/0
+ip add 10.13.7.1<#num#> 255.255.255.0
+ip desc erx<#num#>erx<#num#><#num#> mgmt enet
+
+host ftpsvr 10.13.7.55 ftp anonymous null
+
+line vty 0 29
+no login
+end
+
+
