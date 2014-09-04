@@ -40,7 +40,8 @@ sequentially.
     -s            Send output to a single file, as opposed to multiple files
 
   
-##Example: Normal operation;
+##Example: 
+Normal operation:
   
     configGen.py -i junosTemplate.txt -c junosTemplate.csv -o customerDirectory
     
