@@ -5,7 +5,7 @@ Running this script will take input file with variables in <#this#> format
 and perform substitution basedon variables stored in a .csv file. A new file will be
 created per row in the CSV file.
 
-#Usage
+## Usage
 
     configGen.py [-h | -i <inputConfigFile> -c <inputCSVFile> -o <outputdir> [-s <singleOutputFileName>]]
 
@@ -20,7 +20,7 @@ these can be replicated in a consistent way. Use the -s option for all output to
 Unfortunately, with the simple syntax, these use cases cannot be mixed, but could be performed
 sequentially.
 
-##Where:
+## Where:
   <inputConfigFile>         Template configuration file in any format as long as the vars are uniquely
                             wraped in <#these#> delimiters
   
@@ -35,12 +35,12 @@ sequentially.
   <singleOutputFileName>    Output filename, when all config should be written to a single file and not
                             a file per row
 
-###Options:
+### Options:
     -h            Show this help.
     -s            Send output to a single file, as opposed to multiple files
 
   
-##Example: 
+## Example: 
 Normal operation:
   
     configGen.py -i junosTemplate.txt -c junosTemplate.csv -o customerDirectory
