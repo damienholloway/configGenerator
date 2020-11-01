@@ -9,7 +9,7 @@ created per row in the CSV file.
 
     configGen.py [-h | -i <inputConfigFile> -c <inputCSVFile> -o <outputdir> [-s <singleOutputFileName>]]
 
-##Applications:
+## Applications:
 Most useful is a case where you need to provide customised configuration for a large number
 of devices based on a template. A good example is the base configuration on each router, including
 upstream interfaces, which would be stored in a seperate file per device/row in the CSV file
